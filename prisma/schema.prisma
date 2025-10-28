@@ -1,0 +1,74 @@
+// generator client {
+//   provider = "prisma-client-js"
+//   output   = "../src/generated/prisma"
+// }
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]   // this enables $use
+   output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model chat {
+  id          Int           @id @default(autoincrement())
+  status      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  message     message[]
+  participant participant[]
+}
+
+model message {
+  id         Int      @id @default(autoincrement())
+  chatId     Int
+  senderId   Int
+  receiverId Int
+  text       String
+  image      String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  chat       chat     @relation(fields: [chatId], references: [id], map: "Message_chatId_fkey")
+  user       user     @relation(fields: [senderId], references: [id], map: "Message_senderId_fkey")
+
+  @@index([chatId], map: "Message_chatId_fkey")
+  @@index([senderId], map: "Message_senderId_fkey")
+}
+
+model participant {
+  id                             Int  @id @default(autoincrement())
+  chatId                         Int
+  user1Id                        Int
+  user2Id                        Int
+  chat                           chat @relation(fields: [chatId], references: [id], map: "Participant_chatId_fkey")
+  user_participant_user1IdTouser user @relation("participant_user1IdTouser", fields: [user1Id], references: [id], map: "Participant_user1Id_fkey")
+  user_participant_user2IdTouser user @relation("participant_user2IdTouser", fields: [user2Id], references: [id], map: "Participant_user2Id_fkey")
+
+  @@index([chatId], map: "Participant_chatId_fkey")
+  @@index([user1Id], map: "Participant_user1Id_fkey")
+  @@index([user2Id], map: "Participant_user2Id_fkey")
+}
+
+model user {
+  id                                    Int           @id @default(autoincrement())
+  name                                  String
+  email                                 String        @unique(map: "User_email_key")
+  profile                               String
+  password                              String
+  role                                  Role          @default(user)
+  createdAt                             DateTime      @default(now())
+  updatedAt                             DateTime      @default(now())
+  message                               message[]
+  participant_participant_user1IdTouser participant[] @relation("participant_user1IdTouser")
+  participant_participant_user2IdTouser participant[] @relation("participant_user2IdTouser")
+}
+
+
+enum Role {
+  user
+  admin
+}
