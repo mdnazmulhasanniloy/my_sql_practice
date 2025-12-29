@@ -32,7 +32,7 @@ const auth = (...userRoles: string[]) => {
       const { role, userId } = decode;
       const isUserExist = await prisma.user.findUniqueOrThrow({
         where: {
-          id: userId,
+          id: Number(userId),
         },
       });
       if (!isUserExist) {

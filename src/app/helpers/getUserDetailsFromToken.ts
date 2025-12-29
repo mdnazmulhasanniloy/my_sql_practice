@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import AppError from '../error/AppError';
 import config from '../config';
-import { User } from '../modules/user/user.models';
+import prisma from '@app/shared/prisma';
 
 const getUserDetailsFromToken = async (token: string) => {
   if (!token) {
@@ -12,9 +12,16 @@ const getUserDetailsFromToken = async (token: string) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const decode: any = await jwt.verify(
     token,
-    config.jwt_access_secret as string,
+    config.jwt_access_secret as string
   );
-  const user = await User.findById(decode.userId).select('-password');
+  const user = await prisma.user.findUnique({
+    where: {
+      id: decode.userId,
+    },
+    select: {
+      password: false,
+    },
+  });
   return user;
 };
 

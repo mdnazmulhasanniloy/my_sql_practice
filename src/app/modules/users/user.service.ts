@@ -43,6 +43,7 @@ const login = async (payload: ILogin) => {
   const user = await prisma.user.findFirst({
     where: { email: payload.email },
   });
+  console.log('🚀 ~ login ~ user:', user);
 
   if (!user) {
     throw new AppError(httpStatus.BAD_REQUEST, 'user is not registered!');
@@ -99,10 +100,10 @@ const getAll = async (query: Record<string, any>) => {
 
   // search condition
   if (searchTerm) {
-    pipeline.OR = ['name', 'email', 'role'].map(field => ({
+    pipeline.OR = ['name', 'email'].map(field => ({
       [field]: {
         contains: searchTerm,
-        mode: 'insensitive',
+        // mode: 'insensitive',
       },
     }));
   }

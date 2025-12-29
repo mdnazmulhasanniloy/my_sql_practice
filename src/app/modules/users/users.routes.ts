@@ -30,6 +30,10 @@ route.get(
   UserController.getMyProfile
 );
 route.get('/:id', auth(Role.admin, Role.user), UserController.getUserById);
-route.get('/', auth(Role.admin, Role.user), UserController.getAll);
+route.get(
+  '/',
+  // auth(Role.admin, Role.user),
+  UserController.getAll
+);
 
 export const UserRouter = route;
